@@ -44,3 +44,10 @@ PAYMENT_STATUS_CHOICES = [
     ('unpaid', 'Unpaid'),
     ('paid', 'Paid'),
 ]
+
+ORDER_STATUS_CHOICES = [
+    ('pending', 'Pending'),
+    ('processing', 'Processing'),
+    ('completed', 'Completed'),
+    ('cancelled', 'Cancelled'),
+]

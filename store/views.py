@@ -1,17 +1,13 @@
-from auths.models import CustomUser
-from .models import  Product
-from .serializers import ProductSerializer
-from rest_framework import viewsets, status
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.decorators import action
+from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
-from rest_framework.decorators import action, api_view, permission_classes
-from rest_framework.exceptions import PermissionDenied
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter
 from commons.custom_pagination import StandardResultPagination
 from commons.custom_filter import ProductFilter
+
+from .models import  Product
+from .serializers import ProductSerializer
+
 
 
 

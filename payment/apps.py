@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class WishlistsConfig(AppConfig):
+class PaymentConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'wishlists'
+    name = 'payment'

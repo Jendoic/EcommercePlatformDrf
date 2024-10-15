@@ -1,5 +1,10 @@
 from pathlib import Path
 from datetime import timedelta
+from dotenv import load_dotenv
+
+import os
+
+load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -32,6 +37,9 @@ LOCAL_APPS = [
     'store',
     'categories',
     'carts',
+    'orders',
+    'payment'
+
     
 ]
 
@@ -39,6 +47,7 @@ THIRD_PARTY_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'django_filters',
+    'django_extensions',
 ]
 
 INSTALLED_APPS += LOCAL_APPS + THIRD_PARTY_APPS
@@ -165,3 +174,8 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+PAYSTACK_SECRET_KEY=os.getenv('PAYSTACK_SECRET_KEY')
+PAYSTACK_PUBLIC_KEY=os.getenv('PAYSTACK_PUBLIC_KEY')
+PAYSTACK_WEBHOOK_SECRET=os.getenv('PAYSTACK_WEBHOOK_SECRET')
