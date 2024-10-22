@@ -2,6 +2,8 @@ import requests
 from django.conf import settings
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
+from django.core.mail import send_mail
+from core import settings
 
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -12,6 +14,12 @@ from orders.models import Order
 from carts.models import Cart, CartItem
 from payment.models import Payment
 
+from .task import order_confirmation_mail
+
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 
@@ -67,12 +75,15 @@ class PaystackWebhookView(APIView):
     @csrf_exempt  
     def post(self, request):
        
+       
         event = request.data.get('event')
         data = request.data.get('data')
 
+        logger.info(f"Webhook received: {event}, data: {data}")
+        
         if event == 'charge.success':
         
-            transaction_id = data.get('id')
+            transaction_id = data.get('reference')
             try:
                 payment = Payment.objects.get(transaction_id=transaction_id)
                 payment.status = 'success'  
@@ -80,24 +91,47 @@ class PaystackWebhookView(APIView):
                 
                 order = payment.order
                 order.paid = True 
+                order.order_status = 'processing'
                 order.save() 
                 
-                cart = Cart.objects.filter(user=request.user)
+                order_confirmation_mail.delay(order.reference)
+                
+                # order = Order.objects.get(reference=order.reference)
+                # send_mail(
+                # subject="Order Confirmation",
+                # message=f"Your order {order.reference} has been successfully placed.",
+                # from_email=settings.EMAIL_HOST_USER,
+                # recipient_list=[order.user.email],
+                # fail_silently=False,
+                # )
+                # print(f"Order confirmation email sent to {order.user.email}")
+          
+                
+                cart = Cart.objects.get(user=order.user)
                 cart_items = CartItem.objects.filter(cart=cart)
                 cart_items.delete()
               
-            except Payment.DoesNotExist:
+            except Payment.DoesNotExist as e:
+                logger.error(f"Payment not found for transaction id {transaction_id}. Exception: {e}")
                 return Response({"error": "Payment not found."}, status=status.HTTP_404_NOT_FOUND)
+            except Exception as e:
+                logger.error(f"An error occurred: {e}")
+                return Response({"error": "An error occurred."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
         elif event == 'charge.failed':
 
-            transaction_id = data.get('id')
+            transaction_id = data.get('reference')
             try:
                 payment = Payment.objects.get(transaction_id=transaction_id)
                 payment.status = 'failed' 
                 payment.save()
-            except Payment.DoesNotExist:
+            except Payment.DoesNotExist as e:
+                logger.error(f"Payment not found for transaction id {transaction_id}. Exception: {e}")
                 return Response({"error": "Payment not found."}, status=status.HTTP_404_NOT_FOUND)
+            except Exception as e:
+                logger.error(f"An error occurred: {e}")
+                return Response({"error": "An error occurred."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 

@@ -18,7 +18,7 @@ SECRET_KEY = 'django-insecure-h*wyd$7@kl2z7k7dl%($5=pq-7i+y6*_-4bl!_-%t*1y-w#3bq
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['cfc2-102-89-47-240.ngrok-free.app', '127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -48,6 +48,7 @@ THIRD_PARTY_APPS = [
     'rest_framework.authtoken',
     'django_filters',
     'django_extensions',
+    'celery',
 ]
 
 INSTALLED_APPS += LOCAL_APPS + THIRD_PARTY_APPS
@@ -179,3 +180,32 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 PAYSTACK_SECRET_KEY=os.getenv('PAYSTACK_SECRET_KEY')
 PAYSTACK_PUBLIC_KEY=os.getenv('PAYSTACK_PUBLIC_KEY')
 PAYSTACK_WEBHOOK_SECRET=os.getenv('PAYSTACK_WEBHOOK_SECRET')
+
+
+# Celery settings
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_CACHE_BACKEND = 'redis://localhost:6379/1'
+
+
+
+# SESSION CONFIGURATION
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Default
+SESSION_COOKIE_NAME = 'sessionid'  # Default cookie name
+SESSION_COOKIE_AGE = 1209600  # 2 weeks by default
+SESSION_COOKIE_SECURE = False  # Set to True if using HTTPS
+SESSION_COOKIE_HTTPONLY = True  # Helps prevent XSS attacks
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Default
+
+
+
+
+EMAIL_BACKEND = 'django_smtp_ssl.SSLEmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = os.getenv('EMAIL_PORT')
+EMAIL_USE_SSL = True
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL= os.getenv('FROM_EMAIL')
